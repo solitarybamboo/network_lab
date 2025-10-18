@@ -4,179 +4,156 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
 int fd = -1;
-int *plc = NULL;
+int *plc = NULL;   // 全局 frame buffer 指针（每像素 4 字节，即 int）
+
+#define LCD_W 800
+#define LCD_H 480
+#define LCD_BYTES (LCD_W * LCD_H * 4)
 
 /*
-    lcd_init:初始化LCD屏幕
-    @lcd_fd:LCD文件描述符
-    @plcd:屏幕映射区域的首地址
+    lcd_init: 初始化 LCD 屏幕
     返回值：
-        void
+        成功 -> 全局 plc 被设置，返回 plc 指针
+        失败 -> 返回 NULL
 */
-void *lcd_init(int *lcd_fd)
+int *lcd_init(int *lcd_fd)
 {
-    int fd = open("/dev/fb0", O_RDWR);
-    if(fd == -1)
+    int local_fd = open("/dev/fb0", O_RDWR);
+    if (local_fd == -1)
     {
-        printf("open lcd fail!\n");
+        printf("open /dev/fb0 fail! errno=%d (%s)\n", errno, strerror(errno));
         return NULL;
     }
-    *lcd_fd = fd;
 
-    void *plcd = mmap(NULL, 800*480*4, PROT_READ | PROT_WRITE,
-                MAP_SHARED, fd, 0);
-    
-    return plcd;
+    void *map = mmap(NULL, LCD_BYTES, PROT_READ | PROT_WRITE, MAP_SHARED, local_fd, 0);
+    if (map == MAP_FAILED)
+    {
+        printf("mmap fail! errno=%d (%s)\n", errno, strerror(errno));
+        close(local_fd);
+        return NULL;
+    }
+
+    // 设置全局并返回
+    fd = local_fd;
+    plc = (int *)map;
+
+    if (lcd_fd) *lcd_fd = local_fd;
+    return plc;
 }
 
-// void lcd_init(int *lcd_fd, int **plcd)
-// {
-//     int fd = open("/dev/fb0", O_RDWR);
-//     if(fd == -1)
-//     {
-//         printf("open lcd fail!\n");
-//         return ;
-//     }
-//     *lcd_fd = fd;
-
-//     *plcd = mmap(NULL, 800*480*4, PROT_READ | PROT_WRITE,
-//                 MAP_SHARED, fd, 0);
-// }
-
 /*
-    lcd_draw_point:lcd屏幕画一个像素点
-    @x:x坐标
-    @y：y坐标
-    @color:像素点的颜色
-    @plcd:z屏幕映射区域的首地址
-    返回值：
-        int 
-        失败 -1
-        成功 0
+    lcd_draw_point: 在屏幕画一个像素点（使用传入的 plcd 指针或全局 plc）
+    返回：
+      0 成功，-1 失败
 */
 int lcd_draw_point(int x, int y, int color, int *plcd)
 {
-    if(plcd == NULL)
+    int *fb = plcd ? plcd : plc;  // 优先使用传入指针，否则用全局
+    if (fb == NULL)
     {
-        printf("plcd is NULL!\n");
+        printf("lcd_draw_point: fb is NULL!\n");
         return -1;
     }
 
-    if((x>=0)&&(x<800)&&(y>=0)&&(y<480))
+    if (x < 0 || x >= LCD_W || y < 0 || y >= LCD_H)
     {
-        *(plcd+y*800+x) = color;
-    }
-    else
-    {
+        // 越界不绘制
         return -1;
     }
 
+    fb[y * LCD_W + x] = color;
     return 0;
-
 }
 
 /*
-    lcd_draw_rectangle:画矩形函数
-    @x:矩形起始坐标x
-    @y:矩形起始坐标y
-    @width:矩形的宽
-    @heigth:矩形的高
-    @color:需要显示的颜色
-    @plcd:LCD映射区域的首地址
-    返回值：
-        int 
-        失败 -1
-        成功 0
+    lcd_draw_rectangle: 画矩形
 */
 int lcd_draw_rectangle(int x, int y, int width, int height, int color, int *plcd)
 {
-    if((x<0) || (x>=800) || (y<0) || (y>=480))
+    int *fb = plcd ? plcd : plc;
+    if (fb == NULL)
     {
-        printf("lcd_draw_rectangle parameters input error!\n");
+        printf("lcd_draw_rectangle: fb is NULL!\n");
         return -1;
     }
 
-    if((x+width>=800) || (y+height)>=479)
-    {
-        printf("lcd_draw_rectangle parameters input error!\n");
-        return -1;
-    }
+    if (width <= 0 || height <= 0) return -1;
+    if (x < 0 || x >= LCD_W || y < 0 || y >= LCD_H) return -1;
+    if (x + width > LCD_W || y + height > LCD_H) return -1;
 
-    if(plcd == NULL)
+    for (int i = 0; i < height; i++)
     {
-        printf("lcd_draw_rectangle parameters input error!\n");
-        return -1;
-    }
-
-    for(int i=0; i<height; i++)
-    {
-        for(int j=0; j<width; j++)
+        for (int j = 0; j < width; j++)
         {
-            *(plcd+ (y+i)*800 + x+j) = color;
+            fb[(y + i) * LCD_W + (x + j)] = color;
         }
     }
-
     return 0;
-
 }
 
 /*
-    lcd_draw_sircle:LCD屏幕上画圆
-    @x:圆心的x坐标
-    @y:圆心的y坐标
-    @r:圆的半径
-    @color:圆的颜色
-    @plcd:屏幕映射区域的首地址
-    返回值：
-        int 
-        成功0
-        失败-1
+    lcd_draw_circle: 在屏幕画圆
 */
-int lcd_draw_circle(int x, int y, int r, int color, int *plcd)
+int lcd_draw_circle(int cx, int cy, int r, int color, int *plcd)
 {
-    if((x-r<0) || (x+r>=800) || (y-r<0) || (y+r>=479))
+    int *fb = plcd ? plcd : plc;
+    if (fb == NULL)
     {
-        printf("function lcd_draw_circle parameters input error!\n");
+        printf("lcd_draw_circle: fb is NULL!\n");
         return -1;
     }
 
-    if(plc == NULL)
-    {
-        printf("function lcd_draw_circle parameters input error!\n");
-        return -1;
-    }
+    if (r <= 0) return -1;
+    if (cx - r < 0 || cx + r >= LCD_W || cy - r < 0 || cy + r >= LCD_H) return -1;
 
-    for(int i=y-r; i<y+r; i++)
+    for (int y = cy - r; y <= cy + r; y++)
     {
-        for(int j=x-r; j<x+r; j++)
+        for (int x = cx - r; x <= cx + r; x++)
         {
-            if((x-j)*(x-j) + (y-i)*(y-i) <= r*r)
+            int dx = cx - x;
+            int dy = cy - y;
+            if (dx*dx + dy*dy <= r*r)
             {
-                lcd_draw_point(j, i, color, plcd);
+                fb[y * LCD_W + x] = color;
             }
         }
     }
-}
-
-void display_point(int x,int y,int color)
-{
-    if(0<= x && x<800 && 0<= y && y<480)
-    {
-        *(plc + 800 * y + x) = color;
-    }
+    return 0;
 }
 
 /*
-   lcd_ uninit:解初始化屏幕
-   @lcd_fd:LCD文件描述符
-   @plcd:映射区域的首地址
-   返回值：
-    void
+    display_point: 便捷版，使用全局 plc
+*/
+void display_point(int x, int y, int color)
+{
+    if (plc == NULL)
+    {
+        // 不打印堆栈信息以免阻塞，简单返回
+        return;
+    }
+    if (x < 0 || x >= LCD_W || y < 0 || y >= LCD_H) return;
+    plc[y * LCD_W + x] = color;
+}
+
+/*
+   lcd_uninit: 解除映射并关闭设备
 */
 void lcd_uninit(int lcd_fd, int *plcd)
 {
-    munmap(plcd, 800*480*4);
-    close(lcd_fd);
+    int *fb = plcd ? plcd : plc;
+    if (fb)
+    {
+        munmap(fb, LCD_BYTES);
+    }
+    if (lcd_fd != -1)
+    {
+        close(lcd_fd);
+    }
+    // 清理全局
+    plc = NULL;
+    fd = -1;
 }
