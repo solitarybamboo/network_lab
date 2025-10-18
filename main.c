@@ -35,7 +35,7 @@ int main(int argc ,const char * argv[])
 
     //主功能部分
     while(1) {
-        show_tem(28.98, 240, 240);
+        show_tem(28.98, 300, 300);
     }
     
 
