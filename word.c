@@ -145,11 +145,12 @@ void word_display(char word[],int x0,int y0,int w,int h)
 
 void show_tem(double temperature, int center_x, int center_y)
 {
+	printf("5");
     int w = 16;      // 每个字符宽度
     int h = 16;      // 每个字符高度
     int spacing = 4; // 字符间距
     int x, y;
-
+	printf("5");
     // 1️⃣ 判断是否为负数
     int is_negative = 0;
     if (temperature < 0) {
