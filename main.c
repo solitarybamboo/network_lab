@@ -21,15 +21,15 @@ int main(int argc ,const char * argv[])
 {
     //1.初始化屏幕
     int lcd_fd;
-    int *plcd;
+    int *plc;
     printf("4\n");
-    plcd = lcd_init(&lcd_fd);
+    plc = lcd_init(&lcd_fd);
     printf("1\n");
     show_tem(28.98, 240, 240);
     // voice(argv[1]);
     printf("2\n");
  
-    lcd_uninit(lcd_fd, plcd);
+    lcd_uninit(lcd_fd, plc);
     printf("3\n");
 
     return 0;
