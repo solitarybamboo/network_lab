@@ -14,6 +14,7 @@
 #include "touch.h"
 #include "voicectl.h"
 #include "word.h"
+#include "gy39.h"
 
 
 
@@ -27,6 +28,12 @@ int main(int argc ,const char * argv[])
         printf("lcd init fail!\n");
         return -1;
     }
+
+    // 实时获取传感器数据
+    pthread_t t_tm;
+    pthread_create(&t_tm, NULL, get_gy39_data, NULL);
+
+    //主功能部分
 
     show_tem(28.98, 240, 240);
 
