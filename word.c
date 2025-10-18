@@ -95,6 +95,13 @@ unsigned char word[14][16*16/8] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x7F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		},
+		{
+/*--  文字:  .  --*/
+/*--  宋体12;  此字体下对应的点阵为：宽x高=9x16   --*/
+/*--  宽度不是8的倍数，现调整为：宽度x高度=16x16  --*/
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x70,0x00,0x70,0x00,0x00,0x00,0x00,0x00,
+		},
 	};
 
 
@@ -145,69 +152,64 @@ void word_display(char word[],int x0,int y0,int w,int h)
 
 void show_tem(double temperature, int center_x, int center_y)
 {
-	printf("5");
-    int w = 16;      // 每个字符宽度
-    int h = 16;      // 每个字符高度
+    int w = 24;      // 字模宽
+    int h = 35;      // 字模高
     int spacing = 4; // 字符间距
     int x, y;
-	printf("5");
-    // 1️⃣ 判断是否为负数
+
+    // 1️⃣ 处理负号
     int is_negative = 0;
     if (temperature < 0) {
         is_negative = 1;
-        temperature = -temperature;
+        temperature = -temperature; // 转为正数方便取整数和小数
     }
-	printf("5");
-    // 2️⃣ 分离整数与小数
-    int integer = (int)temperature;
-    int decimal = (int)((temperature - integer) * 10);
 
-    // 3️⃣ 计算整数部分字符个数
+    // 2️⃣ 分离整数和小数
+    int integer = (int)temperature;
+    int decimal = (int)((temperature - integer) * 10 + 0.5);
+
+    // 3️⃣ 计算整数部分长度
     char buf[10];
     sprintf(buf, "%d", integer);
     int num_len = 0;
     for (int i = 0; buf[i] != '\0'; i++) num_len++;
-	printf("5");
-    // 4️⃣ 总字符数统计
+
+    // 4️⃣ 总字符数统计（负号 + 整数 + 小数点 + 小数位 + °C）
     int char_count = num_len + 1 /*小数点*/ + 1 /*小数位*/ + 2 /*°C*/ + (is_negative ? 1 : 0);
 
-    // 5️⃣ 计算总宽度，实现居中
+    // 5️⃣ 计算居中起始坐标
     int total_width = char_count * w + (char_count - 1) * spacing;
     int x0 = center_x - total_width / 2;
     int y0 = center_y - h / 2;
 
     x = x0;
     y = y0;
-	printf("5");
+
     // 6️⃣ 显示负号
     if (is_negative) {
         word_display(word[12], x, y, w, h);
         x += w + spacing;
     }
-	printf("5");
+
     // 7️⃣ 显示整数部分
     for (int i = 0; buf[i] != '\0'; i++) {
         int num = buf[i] - '0';
         word_display(word[num], x, y, w, h);
         x += w + spacing;
     }
-	printf("5");
-    // 8️⃣ 显示小数点（自己画一个3x3的点）
-    int dot_x = x + w / 3;
-    int dot_y = y + h - 4;
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            display_point(dot_x + i, dot_y + j, 0x000000);
-    x += w / 2;
-	printf("5");
+
+    // 8️⃣ 显示小数点
+    word_display(word[13], x, y, w, h);
+    x += w + spacing;
+
     // 9️⃣ 显示小数位
     word_display(word[decimal], x, y, w, h);
     x += w + spacing;
-	printf("5");
+
     // 🔟 显示 “°”
     word_display(word[10], x, y, w, h);
     x += w + spacing;
-	printf("5");
+
     // 11️⃣ 显示 “C”
     word_display(word[11], x, y, w, h);
 }
