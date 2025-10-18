@@ -16,7 +16,7 @@
 #include "word.h"
 #include "gy39.h"
 
-
+void clean_screen(void);
 
 extern int *plc;  // 声明全局 plc
 
@@ -32,7 +32,7 @@ int main(int argc ,const char * argv[])
     // // 实时获取传感器数据
     // pthread_t t_tm;
     // pthread_create(&t_tm, NULL, get_gy39_data, NULL);
-
+    clean_screen();
     //主功能部分
     while(1) {
         show_tem(28.98, 300, 300);
@@ -43,6 +43,14 @@ int main(int argc ,const char * argv[])
     return 0;
 }
 
+
+void clean_screen(void) {
+    for(int i = 0; i < 480; i ++) {
+        for(int j = 0; j < 800; j ++) {
+            display_point(j, i, 0xffffff);
+        }
+    }
+}
 
 
 
