@@ -156,7 +156,7 @@ void show_tem(double temperature, int center_x, int center_y)
         is_negative = 1;
         temperature = -temperature;
     }
-
+	printf("5");
     // 2️⃣ 分离整数与小数
     int integer = (int)temperature;
     int decimal = (int)((temperature - integer) * 10);
@@ -166,7 +166,7 @@ void show_tem(double temperature, int center_x, int center_y)
     sprintf(buf, "%d", integer);
     int num_len = 0;
     for (int i = 0; buf[i] != '\0'; i++) num_len++;
-
+	printf("5");
     // 4️⃣ 总字符数统计
     int char_count = num_len + 1 /*小数点*/ + 1 /*小数位*/ + 2 /*°C*/ + (is_negative ? 1 : 0);
 
@@ -177,20 +177,20 @@ void show_tem(double temperature, int center_x, int center_y)
 
     x = x0;
     y = y0;
-
+	printf("5");
     // 6️⃣ 显示负号
     if (is_negative) {
         word_display(word[12], x, y, w, h);
         x += w + spacing;
     }
-
+	printf("5");
     // 7️⃣ 显示整数部分
     for (int i = 0; buf[i] != '\0'; i++) {
         int num = buf[i] - '0';
         word_display(word[num], x, y, w, h);
         x += w + spacing;
     }
-
+	printf("5");
     // 8️⃣ 显示小数点（自己画一个3x3的点）
     int dot_x = x + w / 3;
     int dot_y = y + h - 4;
@@ -198,15 +198,15 @@ void show_tem(double temperature, int center_x, int center_y)
         for (int j = 0; j < 3; j++)
             display_point(dot_x + i, dot_y + j, 0x000000);
     x += w / 2;
-
+	printf("5");
     // 9️⃣ 显示小数位
     word_display(word[decimal], x, y, w, h);
     x += w + spacing;
-
+	printf("5");
     // 🔟 显示 “°”
     word_display(word[10], x, y, w, h);
     x += w + spacing;
-
+	printf("5");
     // 11️⃣ 显示 “C”
     word_display(word[11], x, y, w, h);
 }
