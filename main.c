@@ -17,23 +17,23 @@
 
 
 
+extern int *plc;  // 声明全局 plc
+
 int main(int argc ,const char * argv[])
 {
-    //1.初始化屏幕
     int lcd_fd;
-    int *plc;
-    printf("4\n");
-    plc = lcd_init(&lcd_fd);
-    printf("1\n");
-    show_tem(28.98, 240, 240);
-    voice(argv[1]);
-    printf("2\n");
- 
-    lcd_uninit(lcd_fd, plc);
-    printf("3\n");
+    plc = lcd_init(&lcd_fd);  // 初始化全局 plc
+    if (!plc) {
+        printf("lcd init fail!\n");
+        return -1;
+    }
 
+    show_tem(28.98, 240, 240);
+
+    lcd_uninit(lcd_fd, plc);
     return 0;
 }
+
 
 
 
