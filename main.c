@@ -26,7 +26,7 @@ int main(int argc ,const char * argv[])
     plc = lcd_init(&lcd_fd);
     printf("1\n");
     show_tem(28.98, 240, 240);
-    // voice(argv[1]);
+    voice(argv[1]);
     printf("2\n");
  
     lcd_uninit(lcd_fd, plc);
