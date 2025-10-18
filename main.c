@@ -29,9 +29,9 @@ int main(int argc ,const char * argv[])
         return -1;
     }
 
-    // 实时获取传感器数据
-    pthread_t t_tm;
-    pthread_create(&t_tm, NULL, get_gy39_data, NULL);
+    // // 实时获取传感器数据
+    // pthread_t t_tm;
+    // pthread_create(&t_tm, NULL, get_gy39_data, NULL);
 
     //主功能部分
     while(1) {
