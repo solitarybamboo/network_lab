@@ -1,7 +1,7 @@
 #ifndef __WORD_H__
 #define __WORD_H__
 
-extern unsigned char word[11][24*35/8];
+extern unsigned char word[14][16*16/8];
 
 
 /*

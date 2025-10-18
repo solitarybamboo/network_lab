@@ -5,6 +5,9 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+int fd = -1;
+int *plcd = NULL;
+
 /*
     lcd_init:初始化LCD屏幕
     @lcd_fd:LCD文件描述符
@@ -154,6 +157,14 @@ int lcd_draw_circle(int x, int y, int r, int color, int *plcd)
                 lcd_draw_point(j, i, color, plcd);
             }
         }
+    }
+}
+
+void display_point(int x,int y,int color)
+{
+    if(0<= x && x<800 && 0<= y && y<480)
+    {
+        *(plcd + 800 * y + x) = color;
     }
 }
 

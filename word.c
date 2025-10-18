@@ -1,5 +1,6 @@
 #include "word.h"
 #include "lcd.h"
+#include <stdio.h>
 
 unsigned char word[14][16*16/8] = 
 	{
