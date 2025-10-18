@@ -159,7 +159,7 @@ void show_tem(double temperature, int center_x, int center_y)
 
     // 2️⃣ 分离整数与小数
     int integer = (int)temperature;
-    int decimal = (int)((temperature - integer) * 10 + 0.5);
+    int decimal = (int)((temperature - integer) * 10);
 
     // 3️⃣ 计算整数部分字符个数
     char buf[10];
