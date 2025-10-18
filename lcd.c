@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 int fd = -1;
-int *plcd = NULL;
+int *plc = NULL;
 
 /*
     lcd_init:初始化LCD屏幕
@@ -142,7 +142,7 @@ int lcd_draw_circle(int x, int y, int r, int color, int *plcd)
         return -1;
     }
 
-    if(plcd == NULL)
+    if(plc == NULL)
     {
         printf("function lcd_draw_circle parameters input error!\n");
         return -1;
@@ -164,7 +164,7 @@ void display_point(int x,int y,int color)
 {
     if(0<= x && x<800 && 0<= y && y<480)
     {
-        *(plcd + 800 * y + x) = color;
+        *(plc + 800 * y + x) = color;
     }
 }
 
