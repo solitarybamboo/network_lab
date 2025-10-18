@@ -34,8 +34,10 @@ int main(int argc ,const char * argv[])
     pthread_create(&t_tm, NULL, get_gy39_data, NULL);
 
     //主功能部分
-
-    show_tem(28.98, 240, 240);
+    while(1) {
+        show_tem(28.98, 240, 240);
+    }
+    
 
     lcd_uninit(lcd_fd, plc);
     return 0;
