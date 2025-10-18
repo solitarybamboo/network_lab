@@ -101,7 +101,7 @@ void parse_data(unsigned char data[], int len)
         double lux = d/100.0;
 
         printf("lux = %g\n", lux); 
-        show_tem(lux, 40, 190);
+        show_tem(lux, 110, 190);
         //在屏幕上合适位置上，显示这个光照强度
     }
     else if (type == 0x45)
@@ -114,15 +114,15 @@ void parse_data(unsigned char data[], int len)
         int p=(data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9];
         double per=p/100.0;
         printf("per = %g\n",per);
-        show_tem(per, 40, 190);
+        show_tem(per, 240, 190);
         int h=(data[10]<<8)|data[11];
         double hum = h/100.0;
         printf("hum = %g\n",hum);
-        show_tem(hum, 40, 190);
+        show_tem(hum, 40, 300);
         int g=(data[12]<<8)|data[13];
         double hei = g/100.0;
         printf("hei = %g\n",hei);
-        show_tem(hei, 40, 190);
+        show_tem(hei, 190, 190);
         // ....
     }
 
