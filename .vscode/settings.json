@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "types.h": "c",
+        "gy39.h": "c",
+        "lcd.h": "c",
+        "stat.h": "c",
+        "fcntl.h": "c",
+        "word.h": "c",
+        "errno.h": "c",
+        "unistd.h": "c",
+        "stdlib.h": "c"
+    },
+    "makefile.configureOnOpen": false
+}

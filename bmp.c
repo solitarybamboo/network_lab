@@ -1,92 +1,104 @@
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include "lcd.h"
 
-/*
-    show_bmp:显示bmp图片
-    @bmp_path:需要显示的图片路径
-    @x_0:图片显示的起始x坐标
-    @y_0:图片显示的起始y坐标
-    @plcd:映射区域的首地址
-    返回值：
-        int
-        成功 0
-        失败 -1
-*/
-int show_bmp(char *bmp_path, int x_0, int y_0, int *plcd)
+
+void bmp_display(const char * bmp_file, int x0, int y0)
 {
-    //1.打开图片
-    int bmp_fd = open(bmp_path, O_RDONLY);
-    if(bmp_fd == -1)
+    int fd;
+
+    
+    fd = open(bmp_file, O_RDONLY);
+    if (fd == -1)
     {
-        printf("open %s fail!\n", bmp_path);
-        return -1;
+        perror("failed to open bmp_file");
+        return ;
     }
 
-    //2.获取图片的宽、高、色深
-    //获取宽
-    int width = 0;
-    lseek(bmp_fd, 0x12, SEEK_SET);
-    read(bmp_fd, &width, 4);
+    int width, height;
+    short depth;
+    
 
-    //获取高
-    int heigth = 0;
-    lseek(bmp_fd, 0x16, SEEK_SET);
-    read(bmp_fd, &heigth, 4);
+    lseek(fd, 0x12, SEEK_SET);
+    read(fd, &width, 4);
+    
 
-    //获取色深
-    short depth = 0;
-    lseek(bmp_fd, 0x1C, SEEK_SET);
-    read(bmp_fd, &depth, 2);
 
-    //3.获取像素数组
-    int line_effctive_bytes = abs(width)*(depth/8);//一行的有效字节数
-    int line_total_bytes = 0;//一行的总字节数
-    int laizi = 0;//赖子数
-    if(line_effctive_bytes % 4 != 0)
+    lseek(fd, 0x16, SEEK_SET);
+    read(fd, &height, 4);
+    
+
+    lseek(fd, 0x1C, SEEK_SET);
+    read(fd, &depth, 2);
+   
+
+    printf("%d x %d\n", width, height);
+
+    if ( !(depth == 24 || depth == 32))
     {
-        laizi = 4-line_effctive_bytes%4;
+        printf("Sorry, Not Supported Bmp Format!\n");
+        close(fd);
+
+        return ;
     }
-    line_total_bytes = line_effctive_bytes + laizi;
 
-    int total_bytes = line_total_bytes * abs(heigth);//像素数组的大小
-    unsigned char piexl_arr[total_bytes];
-    lseek(bmp_fd, 0x36, SEEK_SET);
-    read(bmp_fd, piexl_arr, total_bytes);
 
-    //4.把像素点一一显示在屏幕上，考虑小端模式存放
-    int a, r, g, b;
-    int i=0;
+    int valid_bytes_per_line; //每一行有效的数据字节数
+    int laizi = 0; // 每一行末尾的填充的“赖子”数
+    int total_bytes_per_line; //每一行实际的字节数.
+    int total_bytes; //整个像素数组的字节数
+
+
+    valid_bytes_per_line =  abs(width) * (depth / 8);
+    if (valid_bytes_per_line % 4)
+    {
+        laizi = 4 - valid_bytes_per_line % 4;
+    }
+    total_bytes_per_line = valid_bytes_per_line + laizi;
+    total_bytes = abs(height) * total_bytes_per_line;
+
+    unsigned char * pixel = (unsigned char*) malloc( total_bytes );
+    lseek(fd, 54, SEEK_SET);
+    read(fd, pixel, total_bytes);
+
+    // 解析像素数据，并在屏幕上显示
+    unsigned char a,r, g,b;
     int color;
+    int i = 0;
+    int x,y;
 
-    for(int y=0; y<abs(heigth); y++)
+    for (y = 0; y < abs(height); y++)
     {
-        for(int x=0; x<abs(width); x++)
+        for (x = 0; x < abs(width); x++)
         {
-            b = piexl_arr[i++];
-            g = piexl_arr[i++];
-            r = piexl_arr[i++];
-            if(depth == 32)
+            b = pixel[i++];
+            g = pixel[i++];
+            r = pixel[i++];
+            if (depth == 32)
             {
-                a = piexl_arr[i++];
+                a = pixel[i++];
             }
             else
             {
                 a = 0;
             }
-            color = (a<<24) | (r<<16) | (g<<8) | b;
-            lcd_draw_point(width>0?x_0+x:x_0+abs(width)-1-x, 
-                        heigth>0?y_0+abs(heigth)-1-y:y_0+y, color, plcd);
+            color = (a << 24) | (r << 16) | (g << 8) | b;
+
+            int x1, y1; //该像素点在屏幕上显示的  坐标
+
+            x1 = (width > 0) ? (x0 + x) : (x0 + abs(width) - 1 - x);
+            y1 = (height > 0) ?  (y0 + height - 1 - y) : y0 + y;
+            display_point(x1, y1, color); 
         }
 
-        i+=laizi;
+        i += laizi; //跳过“赖子”
     }
 
-    //5.关闭图片文件
-    close(bmp_fd);
-    return 0;
+    free(pixel);
+
 }

@@ -2,6 +2,6 @@
 #define __BMP_H__
 
 
-int show_bmp(char *bmp_path, int x_0, int y_0, int *plcd);
+void bmp_display(const char * bmp_file, int x0, int y0);
 
 #endif

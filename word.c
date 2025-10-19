@@ -140,11 +140,11 @@ void word_display(char word[],int x0,int y0,int w,int h)
 		if(word[index] & (1<<bit))
 		{
 			//当前像素点在字符上，对应bit位为1
-			color = 0x000000;
+			color = 0xffffff;
 		}
 		else
 		{
-			color = 0xFFEFD5;
+			color = 0x2E5479;
 		}
 		display_point(x,y,color);
 	}
@@ -152,8 +152,8 @@ void word_display(char word[],int x0,int y0,int w,int h)
 
 void show_tem(double temperature, int center_x, int center_y)
 {
-    int w = 24;      // 字模宽
-    int h = 35;      // 字模高
+    int w = 16;      // 字模宽
+    int h = 16;      // 字模高
     int spacing = 4; // 字符间距
     int x, y;
 
@@ -166,7 +166,7 @@ void show_tem(double temperature, int center_x, int center_y)
 
     // 2️⃣ 分离整数和小数
     int integer = (int)temperature;
-    int decimal = (int)((temperature - integer) * 10 + 0.5);
+    int decimal = (int)((temperature - integer) * 10);
 
     // 3️⃣ 计算整数部分长度
     char buf[10];

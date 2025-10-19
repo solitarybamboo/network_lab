@@ -17,6 +17,7 @@
 #include "gy39.h"
 
 void clean_screen(void);
+void main_screen(void);
 
 extern int *plc;  // 声明全局 plc
 
@@ -32,13 +33,15 @@ int main(int argc ,const char * argv[])
     // // 实时获取传感器数据
     // pthread_t t_tm;
     // pthread_create(&t_tm, NULL, get_gy39_data, NULL);
-    clean_screen();
-    //主功能部分
-    while(1) {
-        show_tem(28.98, 300, 300);
-    }
     
-
+    clean_screen();
+    main_screen();
+    
+    //主功能部分
+    // while(1) {
+    //     show_tem(11.11, 300, 300);
+    // }
+    
     lcd_uninit(lcd_fd, plc);
     return 0;
 }
@@ -52,5 +55,12 @@ void clean_screen(void) {
     }
 }
 
+void main_screen(void) {
+    char *bmp_path = "./pic/beijing.bmp";
+    int x_0 = 0;
+    int y_0 = 0;
+    bmp_display(bmp_path, x_0, y_0);
+    get_gy39_data();
+}
 
 
