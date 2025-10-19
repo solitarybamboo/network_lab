@@ -72,70 +72,60 @@ int init_serial(const char *file, int baudrate)
 }
 
 //解析并处理数据
-void show_tem(double temperature, int center_x, int center_y)
+void parse_data(unsigned char data[], int len)
 {
-    int w = 16;      // 字模宽
-    int h = 16;      // 字模高
-    int spacing = 4; // 字符间距
-    int x, y;
+    int i;
 
-    // 1️⃣ 判断负号
-    int is_negative = 0;
-    if (temperature < 0) {
-        is_negative = 1;
-        temperature = -temperature;
+    //debug
+    for (i = 0; i < len; i++)
+    {
+        printf("%02x ", data[i]);
+    }
+    printf("\n");
+
+    if (data[0] != 0x5A || data[1] != 0x5A)
+    {
+        printf(" ERROR data\n");
+        return ;
     }
 
-    // 2️⃣ 分离整数和小数部分（保留两位）
-    int integer = (int)temperature;
-    int decimal = (int)((temperature - integer) * 100); 
+    int type = data[2];
+    int l = data[3];
+    
 
-    // 3️⃣ 处理整数部分字符串
-    char buf_int[10];
-    sprintf(buf_int, "%d", integer);
-    int num_len = 0;
-    for (int i = 0; buf_int[i] != '\0'; i++) num_len++;
+    if (type == 0x15)
+    {
+        int d =  (data[4]<< 24) | (data[5] << 16) | (data[6] << 8) | (data[7]) ;
 
-    // 4️⃣ 处理小数部分两位
-    char buf_dec[3];
-    sprintf(buf_dec, "%02d", decimal); // 确保两位
+        double lux = d/100.0;
 
-    // 5️⃣ 总字符数 = 负号 + 整数 + 小数点 + 小数两位
-    int char_count = num_len + 1 + 2 + (is_negative ? 1 : 0);
-
-    // 6️⃣ 计算居中起始坐标
-    int total_width = char_count * w + (char_count - 1) * spacing;
-    int x0 = center_x - total_width / 2;
-    int y0 = center_y - h / 2;
-
-    x = x0;
-    y = y0;
-
-    // 7️⃣ 显示负号
-    if (is_negative) {
-        word_display(word[12], x, y, w, h);
-        x += w + spacing;
+        printf("lux = %g\n", lux); 
+        show_tem(lux, 380, 400);
+        //在屏幕上合适位置上，显示这个光照强度
+    }
+    else if (type == 0x45)
+    {
+        //解析： 温度、湿度、气压、海拔
+        int t = (data[4] << 8) | data[5];
+        double tem = t / 100.0;
+        printf("tem = %g\n",tem);
+        show_tem(tem, 150, 245);
+        int p = (data[6] << 24) | (data[7] << 16) | (data[8] << 8) | data[9];
+        double per = p / 100.0;
+        printf("per = %g\n", per);
+        show_tem(per, 380, 140);
+        int h = (data[10] << 8) | data[11];
+        double hum = h / 100.0;
+        printf("hum = %g\n", hum);
+        show_tem(hum, 380, 270);
+        int g = (data[12] << 8) | data[13];
+        double hei = g / 100.0;
+        printf("hei = %g\n", hei);
+        // show_tem(hei, 380, 160);
+        // ....
     }
 
-    // 8️⃣ 显示整数部分
-    for (int i = 0; buf_int[i] != '\0'; i++) {
-        int num = buf_int[i] - '0';
-        word_display(word[num], x, y, w, h);
-        x += w + spacing;
-    }
-
-    // 9️⃣ 显示小数点
-    word_display(word[13], x, y, w, h);
-    x += w + spacing;
-
-    // 🔟 显示两位小数
-    for (int i = 0; i < 2; i++) {
-        int num = buf_dec[i] - '0';
-        word_display(word[num], x, y, w, h);
-        x += w + spacing;
-    }
 }
-
 
 
 void* get_gy39_data()

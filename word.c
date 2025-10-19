@@ -157,27 +157,38 @@ void show_tem(double temperature, int center_x, int center_y)
     int spacing = 4; // 字符间距
     int x, y;
 
-    // 1️⃣ 处理负号
+    // 1️⃣ 判断负号
     int is_negative = 0;
     if (temperature < 0) {
         is_negative = 1;
-        temperature = -temperature; // 转为正数方便取整数和小数
+        temperature = -temperature;
     }
 
-    // 2️⃣ 分离整数和小数
+    // 2️⃣ 分离整数和小数部分（保留两位）
     int integer = (int)temperature;
-    int decimal = (int)((temperature - integer) * 10);
+    double frac = temperature - integer;
+    int decimal = (int)(frac * 100); // 四舍五入两位
 
-    // 3️⃣ 计算整数部分长度
-    char buf[10];
-    sprintf(buf, "%d", integer);
+    // 🔸 防止小数进位溢出，例如 99.995 → 100.00
+    if (decimal >= 100) {
+        integer += 1;
+        decimal = 0;
+    }
+
+    // 3️⃣ 处理整数部分字符串
+    char buf_int[10];
+    sprintf(buf_int, "%d", integer);
     int num_len = 0;
-    for (int i = 0; buf[i] != '\0'; i++) num_len++;
+    for (int i = 0; buf_int[i] != '\0'; i++) num_len++;
 
-    // 4️⃣ 总字符数统计（负号 + 整数 + 小数点 + 小数位 + °C）
-    int char_count = num_len + 1 /*小数点*/ + 1 /*小数位*/ + 2 /*°C*/ + (is_negative ? 1 : 0);
+    // 4️⃣ 处理小数部分两位
+    char buf_dec[3];
+    sprintf(buf_dec, "%02d", decimal); // 确保两位
 
-    // 5️⃣ 计算居中起始坐标
+    // 5️⃣ 总字符数 = 负号 + 整数 + 小数点 + 小数两位
+    int char_count = num_len + 1 + 2 + (is_negative ? 1 : 0);
+
+    // 6️⃣ 计算居中起始坐标
     int total_width = char_count * w + (char_count - 1) * spacing;
     int x0 = center_x - total_width / 2;
     int y0 = center_y - h / 2;
@@ -185,31 +196,27 @@ void show_tem(double temperature, int center_x, int center_y)
     x = x0;
     y = y0;
 
-    // 6️⃣ 显示负号
+    // 7️⃣ 显示负号
     if (is_negative) {
         word_display(word[12], x, y, w, h);
         x += w + spacing;
     }
 
-    // 7️⃣ 显示整数部分
-    for (int i = 0; buf[i] != '\0'; i++) {
-        int num = buf[i] - '0';
+    // 8️⃣ 显示整数部分
+    for (int i = 0; buf_int[i] != '\0'; i++) {
+        int num = buf_int[i] - '0';
         word_display(word[num], x, y, w, h);
         x += w + spacing;
     }
 
-    // 8️⃣ 显示小数点
+    // 9️⃣ 显示小数点
     word_display(word[13], x, y, w, h);
     x += w + spacing;
 
-    // 9️⃣ 显示小数位
-    word_display(word[decimal], x, y, w, h);
-    x += w + spacing;
-
-    // 🔟 显示 “°”
-    word_display(word[10], x, y, w, h);
-    x += w + spacing;
-
-    // 11️⃣ 显示 “C”
-    word_display(word[11], x, y, w, h);
+    // 🔟 显示两位小数
+    for (int i = 0; i < 2; i++) {
+        int num = buf_dec[i] - '0';
+        word_display(word[num], x, y, w, h);
+        x += w + spacing;
+    }
 }
