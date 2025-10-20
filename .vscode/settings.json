@@ -9,7 +9,27 @@
         "word.h": "c",
         "errno.h": "c",
         "unistd.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "type_traits": "c",
+        "ts.h": "c",
+        "pthread.h": "c",
+        "beep.h": "c",
+        "string.h": "c",
+        "compare": "c",
+        "mq2.h": "c",
+        "common.h": "c",
+        "stdbool.h": "c",
+        "getopt.h": "c",
+        "malloc.h": "c",
+        "math.h": "c",
+        "dirent.h": "c",
+        "semaphore.h": "c",
+        "ctype.h": "c",
+        "time.h": "c",
+        "camera.h": "c",
+        "camera_screen.h": "c",
+        "touch.h": "c",
+        "bmp.h": "c"
     },
     "makefile.configureOnOpen": false
 }

@@ -2,7 +2,7 @@
 #include "lcd.h"
 #include <stdio.h>
 
-unsigned char word[14][16*16/8] = 
+unsigned char word[17][16*16/8] = 
 	{
 		{
 /*--  文字:  0  --*/
@@ -102,7 +102,53 @@ unsigned char word[14][16*16/8] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x70,0x00,0x70,0x00,0x00,0x00,0x00,0x00,
 		},
+		{
+/*--  文字:  年  --*/
+/*--  宋体16;  宽x高=16x16  --*/
+0x10, 0x10, 0x1f, 0x20, 0x20, 0x40, 0x1f, 0x10, 0x10, 0x10, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0xfc, 0x80, 0x80, 0x80, 0xf8, 0x80, 0x80, 0x80, 0xfe, 0x80, 0x80, 0x80, 0x80, 0x80,
+
+		},
+		{
+/*--  文字:  月  --*/
+/*--  宋体12;  此字体下对应的点阵为：宽x高=9x16   --*/
+/*--  宽度不是8的倍数，现调整为：宽度x高度=16x16  --*/
+0x00,0x00,0x1F,0x80,0x18,0x00,0x18,0x00,0x18,0x00,0x1F,0x80,0x18,0x00,0x18,0x00,
+0x18,0x00,0x1F,0x80,0x18,0x00,0x18,0x00,0x30,0x00,0x30,0x00,0x60,0x00,0xC0,0x00,
+		},
+		{
+/*--  文字:  日  --*/
+/*--  宋体12;  此字体下对应的点阵为：宽x高=9x16   --*/
+/*--  宽度不是8的倍数，现调整为：宽度x高度=16x16  --*/
+0x00,0x00,0x1F,0x80,0x18,0x00,0x18,0x00,0x18,0x00,0x18,0x00,0x18,0x00,0x1F,0x80,
+0x18,0x00,0x18,0x00,0x18,0x00,0x18,0x00,0x18,0x00,0x18,0x00,0x1F,0x80,0x18,0x00,
+		},
 	};
+
+unsigned char word_hz[3][24*16/8] = {
+	{
+/*--  文字:  年  --*/
+/*--  宋体12;  此字体下对应的点阵为：宽x高=17x16   --*/
+/*--  宽度不是8的倍数，现调整为：宽度x高度=24x16  --*/
+0x18,0x00,0x00,0x18,0x00,0x00,0x1F,0xFE,0x00,0x30,0xC0,0x00,0x30,0xC0,0x00,0x60,
+0xC0,0x00,0x1F,0xFC,0x00,0x18,0xC0,0x00,0x18,0xC0,0x00,0x18,0xC0,0x00,0xFF,0xFF,
+0x00,0x00,0xC0,0x00,0x00,0xC0,0x00,0x00,0xC0,0x00,0x00,0xC0,0x00,0x00,0xC0,0x00,		
+	},
+	{
+/*--  宋体12;  此字体下对应的点阵为：宽x高=17x16   --*/
+/*--  宽度不是8的倍数，现调整为：宽度x高度=24x16  --*/
+0x00,0x00,0x00,0x1F,0xFC,0x00,0x18,0x0C,0x00,0x18,0x0C,0x00,0x18,0x0C,0x00,0x1F,
+0xFC,0x00,0x18,0x0C,0x00,0x18,0x0C,0x00,0x18,0x0C,0x00,0x1F,0xFC,0x00,0x18,0x0C,
+0x00,0x18,0x0C,0x00,0x30,0x0C,0x00,0x30,0x0C,0x00,0x60,0x3C,0x00,0xC0,0x18,0x00,
+	},
+	{
+/*--  宋体12;  此字体下对应的点阵为：宽x高=17x16   --*/
+/*--  宽度不是8的倍数，现调整为：宽度x高度=24x16  --*/
+0x00,0x00,0x00,0x1F,0xF8,0x00,0x18,0x18,0x00,0x18,0x18,0x00,0x18,0x18,0x00,0x18,
+0x18,0x00,0x18,0x18,0x00,0x1F,0xF8,0x00,0x18,0x18,0x00,0x18,0x18,0x00,0x18,0x18,
+0x00,0x18,0x18,0x00,0x18,0x18,0x00,0x18,0x18,0x00,0x1F,0xF8,0x00,0x18,0x18,0x00,
+	},
+};
 
 
 /*
@@ -217,6 +263,130 @@ void show_tem(double temperature, int center_x, int center_y)
     for (int i = 0; i < 2; i++) {
         int num = buf_dec[i] - '0';
         word_display(word[num], x, y, w, h);
+        x += w + spacing;
+    }
+}
+
+void display_word(void) {
+	int w = 16, h = 16;
+    word_display_yw(word[2], 551, 44, w, h); // 2
+	word_display_yw(word[0], 568, 44, w, h); // 0
+	word_display_yw(word[2], 587, 44, w, h); // 2
+	word_display_yw(word[5], 605, 44, w, h); // 5
+	word_display_yw(word_hz[0], 623, 44, 24, h); // 年
+	word_display_yw(word[1], 649,44, w, h); // 1
+	word_display_yw(word[0], 667, 44, w, h); // 0
+	word_display_yw(word_hz[1], 685, 44, 24, h); // 月
+	word_display_yw(word[2], 711, 44, w, h); // 2
+	word_display_yw(word[1], 729, 44, w, h); // 0
+	word_display_yw(word_hz[2], 747, 44, 24, h); // 日
+}
+
+void word_display_yw(char word[],int x0,int y0,int w,int h)
+{
+	//1.找到该像素点的显示位置
+	int dian; //表示当前判断的这个像素点
+	for(dian = 0;dian < w * h;dian++)
+	{
+		//要在屏幕上合适的位置显示这个像素点
+		
+		int x,y;//这个dian像素点，在屏幕上的显示位置
+		
+		//dian这个像素点在原始字符的第 dian / w行
+		y = y0 + dian / w;
+		
+		//dian这个像素点在原始字符的第 dian % w列
+		x = x0 + dian % w;
+		
+		//dian这个像素点是否在字符上。
+		//判断依据:取模之后对应的那一个bit位是1还是0
+		int index = dian / 8;	//求出当前像素点在取模数据中的第几个元素中
+		
+		//word[index]这个元素一共有8个bit位，当前dian对应的是哪一位？
+		int bit = 7 - dian % 8;
+		
+		int color;//当前像素点要显示的颜色
+		
+		if(word[index] & (1<<bit))
+		{
+			//当前像素点在字符上，对应bit位为1
+			color = 0xffffff;
+		}
+		else
+		{
+			color = 0xEF949E;
+		}
+		display_point(x,y,color);
+	}
+}
+
+void show_tem_yw(double temperature, int center_x, int center_y)
+{
+    int w = 16;      // 字模宽
+    int h = 16;      // 字模高
+    int spacing = 4; // 字符间距
+    int x, y;
+
+    // 1️⃣ 判断负号
+    int is_negative = 0;
+    if (temperature < 0) {
+        is_negative = 1;
+        temperature = -temperature;
+    }
+
+    // 2️⃣ 分离整数和小数部分（保留两位）
+    int integer = (int)temperature;
+    double frac = temperature - integer;
+    int decimal = (int)(frac * 100); // 四舍五入两位
+
+    // 🔸 防止小数进位溢出，例如 99.995 → 100.00
+    if (decimal >= 100) {
+        integer += 1;
+        decimal = 0;
+    }
+
+    // 3️⃣ 处理整数部分字符串
+    char buf_int[10];
+    sprintf(buf_int, "%d", integer);
+    int num_len = 0;
+    for (int i = 0; buf_int[i] != '\0'; i++) num_len++;
+
+    // 4️⃣ 处理小数部分两位
+    char buf_dec[3];
+    sprintf(buf_dec, "%02d", decimal); // 确保两位
+
+    // 5️⃣ 总字符数 = 负号 + 整数 + 小数点 + 小数两位
+    int char_count = num_len + 1 + 2 + (is_negative ? 1 : 0);
+
+    // 6️⃣ 计算居中起始坐标
+    int total_width = char_count * w + (char_count - 1) * spacing;
+    int x0 = center_x - total_width / 2;
+    int y0 = center_y - h / 2;
+
+    x = x0;
+    y = y0;
+
+    // 7️⃣ 显示负号
+    if (is_negative) {
+        word_display_yw(word[12], x, y, w, h);
+        x += w + spacing;
+    }
+
+    // 8️⃣ 显示整数部分
+    for (int i = 0; buf_int[i] != '\0'; i++) {
+        int num = buf_int[i] - '0';
+        word_display_yw(word[num], x, y, w, h);
+        x += w + spacing;
+    }
+
+    // 9️⃣ 显示小数点
+    word_display_yw(word[13], x, y, w, h);
+    x += w + spacing;
+
+    // 🔟 显示两位小数
+    for (int i = 0; i < 2; i++) {
+        int num = buf_dec[i] - '0';
+        word_display_yw(word[num], x, y, w, h);
         x += w + spacing;
     }
 }

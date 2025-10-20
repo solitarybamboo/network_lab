@@ -1,7 +1,7 @@
 #ifndef __WORD_H__
 #define __WORD_H__
 
-extern unsigned char word[14][16*16/8];
+extern unsigned char word[17][16*16/8];
 
 
 /*
@@ -13,6 +13,9 @@ extern unsigned char word[14][16*16/8];
 */
 void word_display(char word[],int x0,int y0,int w,int h);
 void show_tem(double temperature, int center_x, int center_y);
+void display_word(void);
+void word_display_yw(char word[],int x0,int y0,int w,int h);
+void show_tem_yw(double temperature, int center_x, int center_y);
 
 
 

@@ -9,6 +9,10 @@
 
 #include "gy39.h"
 #include "word.h"
+#include "bmp.h"
+
+extern volatile double tm_data_1;
+volatile int flag_tq = 1;
 
 //初始化串口
 //file: 串口所对应的文件名
@@ -99,8 +103,8 @@ void parse_data(unsigned char data[], int len)
 
         double lux = d/100.0;
 
-        printf("lux = %g\n", lux); 
-        show_tem(lux, 380, 400);
+        // printf("lux = %g\n", lux); 
+        show_tem(lux, 380, 420);
         //在屏幕上合适位置上，显示这个光照强度
     }
     else if (type == 0x45)
@@ -108,19 +112,32 @@ void parse_data(unsigned char data[], int len)
         //解析： 温度、湿度、气压、海拔
         int t = (data[4] << 8) | data[5];
         double tem = t / 100.0;
-        printf("tem = %g\n",tem);
-        show_tem(tem, 150, 245);
+        tem += tm_data_1;
+        // printf("tem = %g\n",tem);
+        show_tem(tem, 150, 255);
         int p = (data[6] << 24) | (data[7] << 16) | (data[8] << 8) | data[9];
-        double per = p / 100.0;
-        printf("per = %g\n", per);
-        show_tem(per, 380, 140);
+        double per = p / 10000.0;
+        // printf("per = %g\n", per);
+        show_tem(per, 380, 160);
         int h = (data[10] << 8) | data[11];
         double hum = h / 100.0;
-        printf("hum = %g\n", hum);
-        show_tem(hum, 380, 270);
+        if(hum > 60) {
+            flag_tq = 0;
+        }
+        else {
+            flag_tq = 1;
+        }
+        if(flag_tq == 0) {
+            bmp_display("./pic/rain.bmp", 100, 100);
+        }
+        else if(flag_tq == 1) {
+            bmp_display("./pic/sun.bmp", 100, 100);
+        }
+        // printf("hum = %g\n", hum);
+        show_tem(hum, 380, 290);
         int g = (data[12] << 8) | data[13];
         double hei = g / 100.0;
-        printf("hei = %g\n", hei);
+        // printf("hei = %g\n", hei);
         // show_tem(hei, 380, 160);
         // ....
     }
@@ -128,7 +145,7 @@ void parse_data(unsigned char data[], int len)
 }
 
 
-void* get_gy39_data()
+void* get_gy39_data(void* arg)
 {
     int ret;
     int fd = init_serial(COM3, 9600);
@@ -184,8 +201,9 @@ void* get_gy39_data()
 
         read(fd, &data[i++], 1); //checksum
     
-
-        parse_data(data, i); //解析(处理)这一帧GY39的数据
+        if(flag_screen == 1) {
+            parse_data(data, i); //解析(处理)这一帧GY39的数据
+        }
         sleep(2);
 
     }

@@ -42,7 +42,7 @@ void open_led(void)
     int fd = open("/sys/kernel/gec_ctrl/led_all",O_RDWR);
     if(fd == -1)
     {
-        perror("open lcd file failed\n");
+        perror("open led file failed\n");
         return ;
     }
     
@@ -57,7 +57,7 @@ void close_led(void)
     int fd = open("/sys/kernel/gec_ctrl/led_all",O_RDWR);
     if(fd == -1)
     {
-        perror("close lcd file failed\n");
+        perror("close led file failed\n");
         return;
     }
     
