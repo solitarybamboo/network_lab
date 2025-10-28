@@ -45,7 +45,6 @@ void open_led(void)
         perror("open led file failed\n");
         return ;
     }
-    
     int k;//保存当前需要写入到文件中的数据
     k = 1;
     write(fd,&k,4);

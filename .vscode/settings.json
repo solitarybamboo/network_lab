@@ -28,8 +28,7 @@
         "time.h": "c",
         "camera.h": "c",
         "camera_screen.h": "c",
-        "touch.h": "c",
-        "bmp.h": "c"
+        "touch.h": "c"
     },
     "makefile.configureOnOpen": false
 }
